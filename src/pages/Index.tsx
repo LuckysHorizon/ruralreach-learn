@@ -4,17 +4,23 @@ import { Hero } from "@/components/Hero";
 import { CourseCard } from "@/components/CourseCard";
 import { CourseView } from "@/components/CourseView";
 import { Features } from "@/components/Features";
+import { AITutor } from "@/components/AITutor";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { courses, Course } from "@/data/courses";
-import { Search } from "lucide-react";
+import { additionalCourses } from "@/data/moreCourses";
+import { Search, MessageCircle } from "lucide-react";
 
 const Index = () => {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("all");
+  const [showAITutor, setShowAITutor] = useState(false);
 
-  const filteredCourses = courses.filter(course => {
+  const allCourses = [...courses, ...additionalCourses];
+
+  const filteredCourses = allCourses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          course.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -106,6 +112,20 @@ const Index = () => {
           </p>
         </div>
       </footer>
+
+      {/* AI Tutor Floating Button */}
+      {!showAITutor && (
+        <Button
+          onClick={() => setShowAITutor(true)}
+          className="fixed bottom-4 right-4 rounded-full w-14 h-14 shadow-lg z-40"
+          size="icon"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </Button>
+      )}
+
+      {/* AI Tutor Component */}
+      {showAITutor && <AITutor onClose={() => setShowAITutor(false)} />}
     </div>
   );
 };
