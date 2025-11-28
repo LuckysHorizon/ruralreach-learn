@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Lesson } from "@/data/courses";
+import { Lesson, YouTubeVideo } from "@/data/courses";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, CheckCircle, Play } from "lucide-react";
 import { Quiz } from "./Quiz";
+import { YouTubePlayer } from "./YouTubePlayer";
+import { CodeEditor } from "./CodeEditor";
 
 interface LessonViewerProps {
   lesson: Lesson;
@@ -79,8 +81,23 @@ export const LessonViewer = ({ lesson, onBack, onComplete }: LessonViewerProps) 
             </div>
           )}
 
+          {lesson.type === 'code' && (
+            <div className="space-y-4">
+              <CodeEditor 
+                language={lesson.codeLanguage || 'javascript'} 
+                defaultCode={lesson.codeTemplate}
+              />
+            </div>
+          )}
+
           {lesson.type === 'quiz' && (
-            <Quiz onComplete={handleComplete} />
+            <Quiz onComplete={handleComplete} lessonId={lesson.id} />
+          )}
+
+          {lesson.youtubeVideos && lesson.youtubeVideos.length > 0 && (
+            <div className="mt-6">
+              <YouTubePlayer videos={lesson.youtubeVideos} title="Related Tutorial Videos" />
+            </div>
           )}
 
           {lesson.type !== 'quiz' && !completed && (

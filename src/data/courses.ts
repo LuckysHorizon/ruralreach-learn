@@ -1,10 +1,20 @@
+export interface YouTubeVideo {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+}
+
 export interface Lesson {
   id: string;
   title: string;
-  type: 'video' | 'reading' | 'interactive' | 'quiz';
+  type: 'video' | 'reading' | 'interactive' | 'quiz' | 'code';
   duration: string;
   completed?: boolean;
   content?: string;
+  youtubeVideos?: YouTubeVideo[];
+  codeLanguage?: string;
+  codeTemplate?: string;
 }
 
 export interface Module {
@@ -26,6 +36,21 @@ export interface Course {
   totalLessons: number;
   estimatedTime: string;
   tags: string[];
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  explanation?: string;
+}
+
+export interface Quiz {
+  id: string;
+  title: string;
+  questions: QuizQuestion[];
 }
 
 export const courses: Course[] = [
@@ -50,7 +75,21 @@ export const courses: Course[] = [
             title: 'What is Python?',
             type: 'video',
             duration: '15 min',
-            content: 'Python is a high-level, interpreted programming language known for its simplicity and readability...'
+            content: 'Python is a high-level, interpreted programming language known for its simplicity and readability...',
+            youtubeVideos: [
+              {
+                id: 'Y8Tko2YC5hA',
+                title: 'Python Tutorial for Beginners',
+                description: 'Learn Python basics in this comprehensive tutorial',
+                duration: '44:07'
+              },
+              {
+                id: 'rfscVS0vtbw',
+                title: 'Learn Python - Full Course',
+                description: 'Complete Python tutorial for absolute beginners',
+                duration: '4:26:52'
+              }
+            ]
           },
           {
             id: 'installing-python',
@@ -61,8 +100,25 @@ export const courses: Course[] = [
           {
             id: 'first-program',
             title: 'Your First Python Program',
-            type: 'video',
-            duration: '25 min'
+            type: 'code',
+            duration: '25 min',
+            codeLanguage: 'python',
+            codeTemplate: `# Your First Python Program
+# Let's print a message to the console
+
+print("Hello, World!")
+
+# Now try creating a variable
+name = "Your Name"
+print(f"Welcome, {name}!")`,
+            youtubeVideos: [
+              {
+                id: 'kqtD5dpn9C8',
+                title: 'Python First Program',
+                description: 'Writing your first Python program step by step',
+                duration: '8:35'
+              }
+            ]
           },
           {
             id: 'quiz-intro',

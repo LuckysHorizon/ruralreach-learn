@@ -1,51 +1,37 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle } from "lucide-react";
+import { courseQuizzes } from "@/data/quizzes";
+import { QuizQuestion } from "@/data/courses";
 
 interface QuizProps {
   onComplete: () => void;
+  lessonId?: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
 }
 
-const quizQuestions = [
-  {
-    id: '1',
-    question: 'What is Python primarily known for?',
-    options: [
-      'High performance in gaming',
-      'Simplicity and readability',
-      'Mobile app development',
-      'Operating system development'
-    ],
-    correctAnswer: 1
-  },
-  {
-    id: '2',
-    question: 'Which of the following is a valid Python variable name?',
-    options: [
-      '2nd_value',
-      'my-variable',
-      'my_variable',
-      'class'
-    ],
-    correctAnswer: 2
-  },
-  {
-    id: '3',
-    question: 'What does the print() function do in Python?',
-    options: [
-      'Saves data to a file',
-      'Displays output to the console',
-      'Converts data to string',
-      'Creates a new variable'
-    ],
-    correctAnswer: 1
-  }
-];
+export const Quiz = ({ onComplete, lessonId, difficulty }: QuizProps) => {
+  // Get quiz questions based on lesson or default to Python quiz
+  const courseId = lessonId?.includes('python') ? 'python-fundamentals' 
+    : lessonId?.includes('js') || lessonId?.includes('javascript') ? 'javascript-web'
+    : lessonId?.includes('react') ? 'react-frontend'
+    : 'python-fundamentals';
 
-export const Quiz = ({ onComplete }: QuizProps) => {
+  const allQuestions = courseQuizzes[courseId]?.questions || [];
+  
+  // Filter questions by difficulty if specified
+  const quizQuestions = useMemo(() => {
+    if (difficulty) {
+      return allQuestions.filter(q => q.difficulty === difficulty);
+    }
+    // Mix of difficulties if not specified
+    return allQuestions.slice(0, 6);
+  }, [allQuestions, difficulty]);
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -54,6 +40,15 @@ export const Quiz = ({ onComplete }: QuizProps) => {
 
   const question = quizQuestions[currentQuestion];
   const isLastQuestion = currentQuestion === quizQuestions.length - 1;
+
+  const getDifficultyColor = (diff: string) => {
+    switch (diff) {
+      case 'beginner': return 'bg-success/10 text-success border-success/20';
+      case 'intermediate': return 'bg-accent/10 text-accent border-accent/20';
+      case 'advanced': return 'bg-destructive/10 text-destructive border-destructive/20';
+      default: return 'bg-muted';
+    }
+  };
 
   const handleSubmit = () => {
     if (selectedAnswer === null) return;
@@ -106,7 +101,12 @@ export const Quiz = ({ onComplete }: QuizProps) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-        <span>Question {currentQuestion + 1} of {quizQuestions.length}</span>
+        <div className="flex items-center gap-2">
+          <span>Question {currentQuestion + 1} of {quizQuestions.length}</span>
+          <Badge variant="outline" className={getDifficultyColor(question.difficulty)}>
+            {question.difficulty}
+          </Badge>
+        </div>
         <span>Score: {score}/{quizQuestions.length}</span>
       </div>
 
@@ -163,11 +163,16 @@ export const Quiz = ({ onComplete }: QuizProps) => {
                 ? 'bg-success/10 text-success'
                 : 'bg-destructive/10 text-destructive'
             }`}>
-              <p className="font-medium">
+              <p className="font-medium mb-2">
                 {selectedAnswer === question.correctAnswer
                   ? '✓ Correct! Well done!'
                   : '✗ Incorrect. The correct answer is highlighted above.'}
               </p>
+              {question.explanation && (
+                <p className="text-sm mt-2 opacity-90">
+                  {question.explanation}
+                </p>
+              )}
             </div>
           )}
 
